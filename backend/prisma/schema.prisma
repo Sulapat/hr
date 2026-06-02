@@ -1,0 +1,246 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["omitApi"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ──────────────────────────────────────────────
+enum Role {
+  SUPER_ADMIN
+  HR_ADMIN
+  MANAGER
+  EMPLOYEE
+}
+
+enum OTStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum LeaveType {
+  SICK
+  ANNUAL
+  PERSONAL
+  MATERNITY
+  OTHER
+}
+
+enum StockAction {
+  IMPORT
+  EXPORT
+}
+
+// ─── Organization ────────────────────────────────────────
+model Company {
+  id        String   @id @default(uuid())
+  name      String
+  address   String?
+  phone     String?
+  taxId     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  users     User[]
+}
+
+model Position {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  users     User[]
+}
+
+model Status {
+  id        String   @id @default(uuid())
+  name      String   @unique  // เช่น ทดลองงาน, ประจำ, ลาออก
+  createdAt DateTime @default(now())
+  users     User[]
+}
+
+// ─── Users ───────────────────────────────────────────────
+model User {
+  id          String    @id @default(uuid())
+  employeeId  String    @unique  // รหัสพนักงาน
+  firstName   String
+  lastName    String
+  email       String    @unique
+  password    String
+  phone       String?
+  avatar      String?
+  role        Role      @default(EMPLOYEE)
+  startDate   DateTime?
+  birthDate   DateTime?
+
+  companyId   String?
+  company     Company?  @relation(fields: [companyId], references: [id])
+  positionId  String?
+  position    Position? @relation(fields: [positionId], references: [id])
+  statusId    String?
+  status      Status?   @relation(fields: [statusId], references: [id])
+
+  // Manager relationship
+  managerId   String?
+  manager     User?     @relation("ManagerEmployee", fields: [managerId], references: [id])
+  subordinates User[]   @relation("ManagerEmployee")
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  otRequests      OTRequest[]
+  otApprovals     OTApproval[]
+  leaveRequests   LeaveRequest[]
+  leaveApprovals  LeaveApproval[]
+  timesheets      TimeSheet[]
+}
+
+// ─── OT System ───────────────────────────────────────────
+model OTType {
+  id          String      @id @default(uuid())
+  name        String      @unique  // เช่น วันธรรมดา, วันหยุด
+  multiplier  Float       @default(1.5)
+  createdAt   DateTime    @default(now())
+  otRequests  OTRequest[]
+}
+
+model OTRequest {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  otTypeId    String
+  otType      OTType    @relation(fields: [otTypeId], references: [id])
+  date        DateTime
+  startTime   String    // "18:00"
+  endTime     String    // "21:00"
+  hours       Float
+  reason      String?
+  status      OTStatus  @default(PENDING)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  approval    OTApproval?
+}
+
+model OTApproval {
+  id          String    @id @default(uuid())
+  otRequestId String    @unique
+  otRequest   OTRequest @relation(fields: [otRequestId], references: [id])
+  approverId  String
+  approver    User      @relation(fields: [approverId], references: [id])
+  status      OTStatus
+  note        String?
+  approvedAt  DateTime  @default(now())
+}
+
+// ─── Leave System ────────────────────────────────────────
+model LeaveRequest {
+  id          String      @id @default(uuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  leaveType   LeaveType
+  startDate   DateTime
+  endDate     DateTime
+  days        Float
+  reason      String?
+  status      LeaveStatus @default(PENDING)
+  attachment  String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  approval    LeaveApproval?
+}
+
+model LeaveApproval {
+  id             String       @id @default(uuid())
+  leaveRequestId String       @unique
+  leaveRequest   LeaveRequest @relation(fields: [leaveRequestId], references: [id])
+  approverId     String
+  approver       User         @relation(fields: [approverId], references: [id])
+  status         LeaveStatus
+  note           String?
+  approvedAt     DateTime     @default(now())
+}
+
+// ─── TimeSheet ───────────────────────────────────────────
+model TypeWork {
+  id          String      @id @default(uuid())
+  name        String      @unique  // เช่น Work From Home, Office, Site
+  createdAt   DateTime    @default(now())
+  timesheets  TimeSheet[]
+}
+
+model PlaceTimeSheet {
+  id          String      @id @default(uuid())
+  name        String      @unique  // สถานที่
+  createdAt   DateTime    @default(now())
+  timesheets  TimeSheet[]
+}
+
+model TimeSheet {
+  id            String          @id @default(uuid())
+  userId        String
+  user          User            @relation(fields: [userId], references: [id])
+  date          DateTime
+  checkIn       String?         // "08:00"
+  checkOut      String?         // "17:00"
+  workHours     Float?
+  typeWorkId    String?
+  typeWork      TypeWork?       @relation(fields: [typeWorkId], references: [id])
+  placeId       String?
+  place         PlaceTimeSheet? @relation(fields: [placeId], references: [id])
+  note          String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@unique([userId, date])
+}
+
+// ─── Stock / Inventory ───────────────────────────────────
+model Item {
+  id          String        @id @default(uuid())
+  code        String        @unique
+  name        String
+  description String?
+  unit        String?       // ชิ้น, กล่อง, ชุด
+  minStock    Int           @default(0)
+  imageUrl    String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  stocks      Stock[]
+  importHistories ImportHistory[]
+  exportHistories ExportHistory[]
+}
+
+model Stock {
+  id        String   @id @default(uuid())
+  itemId    String   @unique
+  item      Item     @relation(fields: [itemId], references: [id])
+  quantity  Int      @default(0)
+  updatedAt DateTime @updatedAt
+}
+
+model ImportHistory {
+  id        String   @id @default(uuid())
+  itemId    String
+  item      Item     @relation(fields: [itemId], references: [id])
+  quantity  Int
+  note      String?
+  importedAt DateTime @default(now())
+}
+
+model ExportHistory {
+  id         String   @id @default(uuid())
+  itemId     String
+  item       Item     @relation(fields: [itemId], references: [id])
+  quantity   Int
+  borrowedBy String?  // ชื่อผู้รับ
+  note       String?
+  exportedAt DateTime @default(now())
+}
