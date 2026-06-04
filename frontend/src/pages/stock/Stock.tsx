@@ -646,17 +646,18 @@ export default function StockPage() {
                 <option value="low">หมดสต็อก</option>
               </select>
             </div>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14, tableLayout: "fixed" }}>
+            <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", minWidth: 700, borderCollapse: "collapse", fontSize: 14, tableLayout: "fixed" }}>
               <thead>
                 <tr>
                   <th style={thStyle("90px")}>รหัส</th>
-                  <th style={thStyle()}>ชื่อสินทรัพย์</th>
-                  <th style={thStyle("110px")}>หมวดหมู่</th>
-                  <th style={thStyle("80px", "right")}>คงเหลือ</th>
-                  <th style={thStyle("60px", "right")}>ยืม</th>
-                  <th style={thStyle("90px")}>สต็อก</th>
-                  <th style={thStyle("110px")}>สภาพ</th>
-                  <th style={thStyle("64px")}></th>
+                  <th style={thStyle("28%")}>ชื่อสินทรัพย์</th>
+                  <th style={thStyle("14%")}>หมวดหมู่</th>
+                  <th style={thStyle("75px", "right")}>คงเหลือ</th>
+                  <th style={thStyle("55px", "right")}>ยืม</th>
+                  <th style={thStyle("75px")}>สต็อก</th>
+                  <th style={thStyle("95px")}>สภาพ</th>
+                  <th style={thStyle("72px")}></th>
                 </tr>
               </thead>
               <tbody>
@@ -693,6 +694,7 @@ export default function StockPage() {
                 })}
               </tbody>
             </table>
+            </div>
           </div>
           <div style={{ marginTop: 12, textAlign: "right" }}>
             <button style={btnPrimary} onClick={() => setEditItem(null)}>+ เพิ่มสินทรัพย์</button>
@@ -703,31 +705,32 @@ export default function StockPage() {
       {/* ── Tab: Borrow ── */}
       {!loading && activeTab === "borrow" && (
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: "1rem", flexWrap: "wrap" }}>
-            <div style={{ position: "relative", flex: 1, minWidth: 160 }}>
-              <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--color-text-secondary)", fontSize: 14, pointerEvents: "none" }}>🔍</span>
-              <input type="text" placeholder="ค้นหาผู้ยืม / สินทรัพย์..." value={borrowSearch} onChange={(e) => setBorrowSearch(e.target.value)} style={{ ...inputStyle, paddingLeft: 34, width: "100%" }} />
-            </div>
-            <select value={borrowStatusFilter} onChange={(e) => setBorrowStatusFilter(e.target.value as BorrowStatusFilter)} style={selectStyle}>
-              <option value="">ทุกสถานะ</option>
-              <option value="borrowing">กำลังยืม</option>
-              <option value="overdue">เกินกำหนด</option>
-              <option value="returned">คืนแล้ว</option>
-            </select>
-            <button style={btnPrimary} onClick={() => openBorrowModal()}>+ บันทึกการยืม</button>
-          </div>
           <div style={panelStyle}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14, tableLayout: "fixed" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 14px", borderBottom: "1px solid #e2e8f0", flexWrap: "wrap" }}>
+              <div style={{ position: "relative", flex: 1, minWidth: 160 }}>
+                <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--color-text-secondary)", fontSize: 14, pointerEvents: "none" }}>🔍</span>
+                <input type="text" placeholder="ค้นหาผู้ยืม / สินทรัพย์..." value={borrowSearch} onChange={(e) => setBorrowSearch(e.target.value)} style={{ ...inputStyle, paddingLeft: 34, width: "100%" }} />
+              </div>
+              <select value={borrowStatusFilter} onChange={(e) => setBorrowStatusFilter(e.target.value as BorrowStatusFilter)} style={selectStyle}>
+                <option value="">ทุกสถานะ</option>
+                <option value="borrowing">กำลังยืม</option>
+                <option value="overdue">เกินกำหนด</option>
+                <option value="returned">คืนแล้ว</option>
+              </select>
+              <button style={btnPrimary} onClick={() => openBorrowModal()}>+ บันทึกการยืม</button>
+            </div>
+            <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", minWidth: 700, borderCollapse: "collapse", fontSize: 14, tableLayout: "fixed" }}>
               <thead>
                 <tr>
                   <th style={thStyle("100px")}>รหัสการยืม</th>
-                  <th style={thStyle()}>สินทรัพย์</th>
-                  <th style={thStyle("120px")}>ผู้ยืม</th>
+                  <th style={thStyle("28%")}>สินทรัพย์</th>
+                  <th style={thStyle("15%")}>ผู้ยืม</th>
                   <th style={thStyle("70px", "right")}>จำนวน</th>
-                  <th style={thStyle("90px")}>วันยืม</th>
-                  <th style={thStyle("90px")}>กำหนดคืน</th>
-                  <th style={thStyle("100px")}>สถานะ</th>
-                  <th style={thStyle("70px")}></th>
+                  <th style={thStyle("85px")}>วันยืม</th>
+                  <th style={thStyle("85px")}>กำหนดคืน</th>
+                  <th style={thStyle("95px")}>สถานะ</th>
+                  <th style={thStyle("65px")}></th>
                 </tr>
               </thead>
               <tbody>
@@ -762,6 +765,7 @@ export default function StockPage() {
                 })}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       )}

@@ -34,7 +34,7 @@ export interface FormState {
 const EMPTY_FORM: FormState = { workHours: "1", typeWorkId: "", note: "" };
 
 // ─── DEV ONLY: สลับ role ตอนเทส (ลบออกก่อน deploy) ──────
-const DEV_ROLE_OVERRIDE: "manager" | "employee" | null = "manager";
+const DEV_ROLE_OVERRIDE: "manager" | "employee" | null = "employee";
 //   null       → ใช้ role จริงจาก auth
 //   "manager"  → บังคับเป็น manager
 //   "employee" → บังคับเป็น employee
