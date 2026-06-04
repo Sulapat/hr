@@ -1,62 +1,26 @@
-version: "3.8"
+version: '3.8'
 
 services:
-  backend:
-    build: ./backend
-    ports:
-      - "3001:3001"
-    env_file:
-      - .env
-    depends_on:
-      db:
-        condition: service_healthy
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
-    working_dir: /app
-    command: sh -c "npx prisma migrate deploy && npx prisma generate && npm run dev"
-    restart: unless-stopped
-
   db:
-    image: postgres:16-alpine
+    image: mysql:8.0
+    container_name: my_mysql_db
+    restart: always
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: patineer
+      MYSQL_DATABASE: asset
     ports:
-      - "5433:5432"
+      - "3306:3306"
     volumes:
-      - db_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
+      - ./pg-data:/var/lib/postgresql/data
 
-  pgadmin:
-    image: dpage/pgadmin4
+  phpmyadmin:
+    image: phpmyadmin:latest              # ดึง Image ล่าสุดของ phpMyAdmin มาใช้
+    container_name: asset_container        # ตั้งชื่อ Container
+    restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PMA_HOST: db                       # [สำคัญ] ใส่ชื่อ service ของ MySQL (ในที่นี้คือ db)
+      PMA_PORT: 3306                     # Port ของ MySQL ข้างในระบบ Docker
+      PMA_USER: root                     # User ที่ใช้ล็อกอิน
+      PMA_PASSWORD: patineer  # รหัสผ่านที่ตรงกับตู้ MySQL ข้างบน
     ports:
-      - "5050:80"
-    depends_on:
-      - db
-    restart: unless-stopped
-
-  frontend:
-    build: ./frontend
-    ports:
-      - "5173:5173"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    working_dir: /app
-    command: npm run dev -- --host
-    depends_on:
-      - backend
-    restart: unless-stopped
-
-volumes:
-  db_data:
+      - "8088:80"                        # ผูกหน้าเว็บออกไปที่ Port 8080 ของเครื่องเรา

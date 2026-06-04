@@ -22,6 +22,7 @@ import typeWorkRoutes from "./src/router/typeWorkRoute";
 import placeRoutes from "./src/router/placeRoute";
 import itemRoutes from "./src/router/itemRoute";
 import stockRoutes from "./src/router/stockRoute";
+import borrowRoutes from "./src/router/borrowRoute";
 import reportRoutes from "./src/router/reportRoute";
 
 const app = express();
@@ -64,6 +65,7 @@ app.use("/api/places", placeRoutes);
 // Stock
 app.use("/api/items", itemRoutes);
 app.use("/api/stock", stockRoutes);
+app.use("/api/borrows", borrowRoutes);
 
 // Reports
 app.use("/api/reports", reportRoutes);

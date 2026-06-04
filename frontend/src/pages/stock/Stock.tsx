@@ -87,19 +87,19 @@ function isOverdue(dueDate: string): boolean {
 
 function catIcon(cat?: string): string {
   const map: Record<string, string> = {
-    "อุปกรณ์ IT": "💻",
-    "เฟอร์นิเจอร์": "🪑",
-    "เครื่องใช้สำนักงาน": "📄",
-    "ยานพาหนะ": "🚗",
+    "อุปกรณ์ IT": "",
+    "เฟอร์นิเจอร์": "",
+    "เครื่องใช้สำนักงาน": "",
+    "ยานพาหนะ": "",
   };
-  return map[cat ?? ""] ?? "📦";
+  return map[cat ?? ""] ?? "";
 }
 
 const ASSET_STATUS_CONFIG: Record<AssetStatus, { label: string; cls: string; icon: string; desc: string }> = {
-  active:      { label: "ใช้งานได้ปกติ", cls: "b-ok",     icon: "✅", desc: "พร้อมใช้งาน" },
-  maintenance: { label: "ส่งซ่อม",        cls: "b-warn",   icon: "🔧", desc: "อยู่ระหว่างซ่อมบำรุง" },
-  damaged:     { label: "เสียหาย",        cls: "b-low",    icon: "⚠️", desc: "ชำรุดเสียหาย ไม่สามารถใช้งานได้" },
-  retired:     { label: "ตัดจำหน่าย",     cls: "b-gray",   icon: "🗄️", desc: "ปลดระวางแล้ว" },
+  active:      { label: "ใช้งานได้ปกติ", cls: "b-ok",   icon: "", desc: "พร้อมใช้งาน" },
+  maintenance: { label: "ส่งซ่อม",        cls: "b-warn",   icon: "", desc: "อยู่ระหว่างซ่อมบำรุง" },
+  damaged:     { label: "เสียหาย",        cls: "b-low",   icon: "", desc: "ชำรุดเสียหาย ไม่สามารถใช้งานได้" },
+  retired:     { label: "ตัดจำหน่าย",     cls: "b-gray",   icon: "", desc: "ปลดระวางแล้ว" },
 };
 
 function getAssetStatus(item: Item) {
@@ -143,7 +143,7 @@ function ImportModal({ items, onClose, onSuccess }: { items: Item[]; onClose: ()
   return (
     <div style={modalOverlay}>
       <div style={modalBox}>
-        <p style={modalTitle}>📦 นำเข้าสต็อก</p>
+        <p style={modalTitle}>นำเข้าสต็อก</p>
         <div style={formRow}>
           <label style={formLabel}>สินทรัพย์</label>
           <select value={itemId} onChange={(e) => setItemId(e.target.value)} style={inputStyle}>
@@ -193,7 +193,7 @@ function ExportModal({ items, onClose, onSuccess }: { items: Item[]; onClose: ()
   return (
     <div style={modalOverlay}>
       <div style={modalBox}>
-        <p style={modalTitle}>📤 เบิกสต็อก</p>
+        <p style={modalTitle}>เบิกสต็อก</p>
         <div style={formRow}>
           <label style={formLabel}>สินทรัพย์</label>
           <select value={itemId} onChange={(e) => setItemId(e.target.value)} style={inputStyle}>
@@ -265,7 +265,7 @@ function BorrowModal({
   return (
     <div style={modalOverlay}>
       <div style={modalBox}>
-        <p style={modalTitle}>🔄 บันทึกการยืมสินทรัพย์</p>
+        <p style={modalTitle}>บันทึกการยืมสินทรัพย์</p>
         <div style={formRow}>
           <label style={formLabel}>สินทรัพย์</label>
           <select value={itemId} onChange={(e) => setItemId(e.target.value)} style={inputStyle}>
@@ -339,7 +339,7 @@ function ItemModal({ item, onClose, onSuccess }: { item?: Item | null; onClose: 
   return (
     <div style={modalOverlay}>
       <div style={modalBox}>
-        <p style={modalTitle}>{isEdit ? "✏️ แก้ไขสินทรัพย์" : "➕ เพิ่มสินทรัพย์ใหม่"}</p>
+        <p style={modalTitle}>{isEdit ? "แก้ไขสินทรัพย์" : "เพิ่มสินทรัพย์ใหม่"}</p>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
           <div style={formRow}>
             <label style={formLabel}>รหัสสินทรัพย์ *</label>
@@ -416,16 +416,16 @@ export default function StockPage() {
   async function fetchAll() {
     setLoading(true);
     try {
-      const [i, ih, eh] = await Promise.all([
+      const [i, ih, eh, b] = await Promise.all([
         stockApi.getItems(),
         stockApi.getImportHistory(),
         stockApi.getExportHistory(),
-        // 🔧 MOCKUP: borrows ใช้ local state — ลบบรรทัดนี้ออกตอนใช้ API จริง
-        // stockApi.getBorrows().then(setBorrows),
+        stockApi.getBorrows(),
       ]);
       setItems(i);
       setImportHist(ih);
       setExportHist(eh);
+      setBorrows(b);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }
@@ -649,15 +649,14 @@ export default function StockPage() {
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14, tableLayout: "fixed" }}>
               <thead>
                 <tr>
-                  <th style={thStyle("36px")}></th>
                   <th style={thStyle("90px")}>รหัส</th>
                   <th style={thStyle()}>ชื่อสินทรัพย์</th>
-                  <th style={thStyle("120px")}>หมวดหมู่</th>
+                  <th style={thStyle("110px")}>หมวดหมู่</th>
                   <th style={thStyle("80px", "right")}>คงเหลือ</th>
                   <th style={thStyle("60px", "right")}>ยืม</th>
-                  <th style={thStyle("100px")}>สต็อก</th>
-                  <th style={thStyle("120px")}>สภาพ</th>
-                  <th style={thStyle("90px")}></th>
+                  <th style={thStyle("90px")}>สต็อก</th>
+                  <th style={thStyle("110px")}>สภาพ</th>
+                  <th style={thStyle("64px")}></th>
                 </tr>
               </thead>
               <tbody>
@@ -671,7 +670,6 @@ export default function StockPage() {
                     <tr key={item.id} style={{ borderBottom: "1px solid #e2e8f0" }}
                       onMouseEnter={(e) => (e.currentTarget.style.background = "#f8fafc")}
                       onMouseLeave={(e) => (e.currentTarget.style.background = "")}>
-                      <td style={{ ...tdStyle, textAlign: "center", fontSize: 16 }}>{catIcon(item.category)}</td>
                       <td style={{ ...tdStyle, fontFamily: "var(--font-mono)", fontSize: 12 }}>{item.code}</td>
                       <td style={{ ...tdStyle, fontWeight: 500 }}>
                         {item.name}
@@ -683,16 +681,14 @@ export default function StockPage() {
                         {bq > 0 ? <Badge cls="b-blue" text={String(bq)} /> : <span style={{ color: "var(--color-text-tertiary)" }}>—</span>}
                       </td>
                       <td style={tdStyle}><Badge cls={s.cls} text={s.text} /></td>
-                      <td style={tdStyle}><Badge cls={getAssetStatus(item).cls} text={`${getAssetStatus(item).icon} ${getAssetStatus(item).label}`} /></td>
+                      <td style={tdStyle}><Badge cls={getAssetStatus(item).cls} text={getAssetStatus(item).label} /></td>
                       <td style={tdStyle}>
                         <div style={{ display: "flex", gap: 2 }}>
-                          <button title="สแกน" onClick={() => { setScanCode(item.code); switchTab("scan"); setTimeout(() => { setScanCode(item.code); handleScan(); }, 100); }} style={iconBtn}>🔍</button>
-                          <button title="ยืม" onClick={() => openBorrowModal(item.id)} style={iconBtn}>🔄</button>
-                          <button title="แก้ไข" onClick={() => setEditItem(item)} style={iconBtn}>✏️</button>
-                          <button title="ลบ" onClick={() => handleDelete(item.id, item.name)} style={{ ...iconBtn, color: "#A32D2D" }}>🗑</button>
+                          <button title="แก้ไข" onClick={() => setEditItem(item)} style={{ ...iconBtn, color: "#000000" }}>✎</button>
+                          <button title="ลบ" onClick={() => handleDelete(item.id, item.name)} style={{ ...iconBtn, color: "#000000" }}>🛇</button>
                         </div>
                       </td>
-                    </tr>
+                    </tr> 
                   );
                 })}
               </tbody>
@@ -778,7 +774,7 @@ export default function StockPage() {
             <p style={{ fontSize: 13, color: "var(--color-text-secondary)" }}>รองรับเครื่องสแกน USB / Bluetooth</p>
             <div style={{ border: "1.5px dashed #cbd5e1", borderRadius: 10, padding: "1.5rem 1rem", margin: "1rem 0", cursor: "pointer" }}
               onClick={() => barcodeInputRef.current?.focus()}>
-              <div style={{ fontSize: 36, color: "var(--color-text-secondary)" }}>📊</div>
+              <div style={{ fontSize: 36, color: "var(--color-text-secondary)" }}></div>
               <p style={{ fontSize: 13, color: "var(--color-text-tertiary)", marginTop: 6 }}>คลิกเพื่อสแกนหรือพิมพ์รหัส</p>
             </div>
             <div style={{ display: "flex", gap: 8 }}>
@@ -786,11 +782,11 @@ export default function StockPage() {
                 onKeyDown={(e) => e.key === "Enter" && handleScan()}
                 placeholder="เช่น IT-001, FN-001"
                 style={{ ...inputStyle, flex: 1, fontFamily: "var(--font-mono)", letterSpacing: 1 }} />
-              <button style={btnPrimary} onClick={handleScan}>🔍 ค้นหา</button>
+              <button style={btnPrimary} onClick={handleScan}>ค้นหา</button>
             </div>
             {scanNotFound && (
               <div style={{ marginTop: "1rem", padding: "10px 14px", borderRadius: 6, background: "#FCEBEB", color: "#A32D2D", fontSize: 13, textAlign: "left" }}>
-                ⚠️ ไม่พบรหัส "{scanNotFound}"
+                ไม่พบรหัส "{scanNotFound}"
               </div>
             )}
             {scanResult && (
@@ -814,7 +810,7 @@ export default function StockPage() {
                 </div>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: scanAction ? 12 : 0 }}>
                   {(["import", "export", "borrow", "status"] as const).map((a) => {
-                    const labels = { import: "📦 นำเข้า", export: "📤 เบิก", borrow: "🔄 ยืม", status: "🏷️ อัพเดทสถานะ" };
+                    const labels = { import: "นำเข้า", export: "เบิก", borrow: "ยืม", status: "อัพเดทสถานะ" };
                     return (
                       <button key={a} style={scanAction === a ? btnPrimary : btnOutline} onClick={() => setScanAction(a)}>
                         {labels[a]}
@@ -923,18 +919,18 @@ export default function StockPage() {
           <p style={{ fontSize: 14, fontWeight: 500, color: "var(--color-text-secondary)", marginBottom: 10 }}>เลือกรูปแบบรายงาน</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12, marginBottom: "1.25rem" }}>
             {[
-              { type: "stock-summary", icon: "📊", name: "สรุปสต็อกทั้งหมด", desc: "รายการสินทรัพย์พร้อมจำนวนคงเหลือ · Excel" },
-              { type: "low-stock", icon: "⚠️", name: "รายการสต็อกต่ำ", desc: "สินทรัพย์ที่ต้องสั่งซื้อเพิ่ม · Excel" },
-              { type: "import-hist", icon: "📥", name: "ประวัติการนำเข้า", desc: "รายการรับสินทรัพย์เข้าสต็อก · PDF" },
-              { type: "export-hist", icon: "📤", name: "ประวัติการเบิก", desc: "รายการเบิก-จ่ายสินทรัพย์ · PDF" },
-              { type: "borrow-report", icon: "🔄", name: "รายงานการยืม", desc: "รายการยืม-คืนพร้อมสถานะ · PDF" },
-              { type: "full-report", icon: "📋", name: "รายงานรวมทั้งหมด", desc: "สรุปภาพรวมทุกส่วน · PDF" },
+              { type: "stock-summary", name: "สรุปสต็อกทั้งหมด", desc: "รายการสินทรัพย์พร้อมจำนวนคงเหลือ · Excel" },
+              { type: "low-stock", name: "รายการสต็อกต่ำ", desc: "สินทรัพย์ที่ต้องสั่งซื้อเพิ่ม · Excel" },
+              { type: "import-hist", name: "ประวัติการนำเข้า", desc: "รายการรับสินทรัพย์เข้าสต็อก · PDF" },
+              { type: "export-hist", name: "ประวัติการเบิก", desc: "รายการเบิก-จ่ายสินทรัพย์ · PDF" },
+              { type: "borrow-report",  name: "รายงานการยืม", desc: "รายการยืม-คืนพร้อมสถานะ · PDF" },
+              { type: "full-report", name: "รายงานรวมทั้งหมด", desc: "สรุปภาพรวมทุกส่วน · PDF" },
             ].map((r) => (
               <div key={r.type} style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 10, padding: "1.25rem", cursor: "pointer", transition: "background .1s" }}
                 onClick={() => alert(`Export "${r.name}" สำเร็จ!\n\n(mockup — เมื่อเชื่อมต่อ API จริง ระบบจะดาวน์โหลดไฟล์อัตโนมัติ)`)}
                 onMouseEnter={(e) => (e.currentTarget.style.background = "#f8fafc")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "#fff")}>
-                <div style={{ fontSize: 28, color: "var(--color-text-secondary)", marginBottom: 8 }}>{r.icon}</div>
+                <div style={{ fontSize: 28, color: "var(--color-text-secondary)", marginBottom: 8 }}></div>
                 <div style={{ fontSize: 14, fontWeight: 500, color: "var(--color-text-primary)", marginBottom: 4 }}>{r.name}</div>
                 <div style={{ fontSize: 12, color: "var(--color-text-secondary)" }}>{r.desc}</div>
               </div>

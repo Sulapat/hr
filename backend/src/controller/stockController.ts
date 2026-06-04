@@ -125,3 +125,19 @@ export const getExportHistory = async (_req: Request, res: Response) => {
     return errorResponse(res);
   }
 };
+
+// Update Asset Status
+export const updateItemStatus = async (req: Request, res: Response) => {
+  const { assetStatus, note } = req.body;
+  try {
+    const item = await prisma.item.update({
+      where: { id: req.params.id },
+      data: { assetStatus },
+      include: { stocks: true },
+    });
+    return successResponse(res, item, "Asset status updated");
+  } catch (err) {
+    console.error(err);
+    return errorResponse(res);
+  }
+};
