@@ -12,7 +12,7 @@ const navItems = [
   { to: "/ot", icon: Clock, label: "ขอ OT", minRole: "EMPLOYEE" },
   { to: "/leave", icon: Calendar, label: "ใบลา", minRole: "EMPLOYEE" },
   { to: "/timesheet", icon: ClipboardList, label: "TimeSheet", minRole: "EMPLOYEE" },
-  { to: "/stock", icon: Package, label: "คลังสินค้า", minRole: "HR_ADMIN" },
+  { to: "/stock", icon: Package, label: "Inventory", minRole: "HR_ADMIN" },
   { to: "/reports", icon: BarChart2, label: "รายงาน", minRole: "HR_ADMIN" },
   { to: "/settings", icon: Settings, label: "ตั้งค่า", minRole: "SUPER_ADMIN" },
 ];

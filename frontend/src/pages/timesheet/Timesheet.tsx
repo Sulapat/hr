@@ -68,7 +68,7 @@ export default function TimesheetPage() {
       {/* Top bar */}
       <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
         <h1 className="text-xl font-medium text-gray-900 flex items-center gap-2">
-          <span>📋</span> Timesheet
+          <span>Timesheet</span>
         </h1>
         <div className="flex items-center gap-2">
           <select

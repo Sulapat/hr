@@ -10,6 +10,7 @@ interface StockRecord {
 }
 
 type AssetStatus = "active" | "maintenance" | "damaged" | "retired";
+type AssetType = "current" | "fixed";
 
 interface Item {
   id: string;
@@ -21,6 +22,7 @@ interface Item {
   minStock: number;
   imageUrl?: string;
   assetStatus?: AssetStatus;
+  assetType?: AssetType;
   createdAt: string;
   updatedAt: string;
   stocks: StockRecord[];
@@ -388,6 +390,7 @@ export default function StockPage() {
   const [loading, setLoading] = useState(true);
 
   const [activeTab, setActiveTab] = useState<Tab>("items");
+  const [assetTypeFilter, setAssetTypeFilter] = useState<AssetType | "all">("fixed");
   const [searchQ, setSearchQ] = useState("");
   const [catFilter, setCatFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("");
@@ -465,9 +468,10 @@ export default function StockPage() {
       const matchQ = !q || i.name.toLowerCase().includes(q) || i.code.toLowerCase().includes(q);
       const matchCat = !catFilter || i.category === catFilter;
       const matchS = !statusFilter || s.key === statusFilter;
-      return matchQ && matchCat && matchS;
+      const matchType = assetTypeFilter === "all" || (i.assetType ?? "fixed") === assetTypeFilter;
+      return matchQ && matchCat && matchS && matchType;
     });
-  }, [items, searchQ, catFilter, statusFilter]);
+  }, [items, searchQ, catFilter, statusFilter, assetTypeFilter]);
 
   // Borrowed qty per item
   function getBorrowedQty(itemId: string): number {
@@ -570,13 +574,33 @@ export default function StockPage() {
 
   return (
     <div style={{ padding: "1.5rem 0" }}>
+      {/* Asset Type Toggle — top of page */}
+      <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "1.25rem" }}>
+        <div style={{ display: "flex", gap: 0, background: "#f1f5f9", borderRadius: 10, padding: 4 }}>
+          {([
+            { key: "fixed",   label: "สินทรัพย์ถาวร" },
+            { key: "current", label: "สินทรัพย์หมุนเวียน" },
+          ] as const).map((t) => (
+            <button key={t.key} onClick={() => setAssetTypeFilter(t.key)} style={{
+              padding: "8px 28px", fontSize: 14, fontWeight: assetTypeFilter === t.key ? 600 : 400,
+              borderRadius: 7, border: "none", cursor: "pointer", transition: "all .15s",
+              background: assetTypeFilter === t.key ? "#ffffff" : "transparent",
+              color: assetTypeFilter === t.key ? "var(--color-text-primary)" : "var(--color-text-secondary)",
+              boxShadow: assetTypeFilter === t.key ? "0 1px 4px rgba(0,0,0,0.12)" : "none",
+            }}>{t.label}</button>
+          ))}
+        </div>
+      </div>
+
       {/* Top Bar */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem", gap: 12, flexWrap: "wrap" }}>
-        <h1 style={{ fontSize: 22, fontWeight: 500, color: "var(--color-text-primary)", margin: 0 }}>ระบบสต็อกสินทรัพย์</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 500, color: "var(--color-text-primary)", margin: 0 }}>
+          {assetTypeFilter === "current" ? "สินทรัพย์หมุนเวียน" : assetTypeFilter === "fixed" ? "สินทรัพย์ถาวร" : "ระบบสต็อกสินทรัพย์"}
+        </h1>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <button style={btnOutline} onClick={() => switchTab("export-report")}>📥 Export รายงาน</button>
-          <button style={btnOutline} onClick={() => openBorrowModal()}>🔄 ยืม-คืน</button>
-          <button style={btnPrimary} onClick={() => switchTab("scan")}>🔍 สแกน</button>
+          <button style={btnOutline} onClick={() => switchTab("export-report")}>Export รายงาน</button>
+          <button style={btnOutline} onClick={() => openBorrowModal()}>ยืม-คืน</button>
+          <button style={btnPrimary} onClick={() => switchTab("scan")}>สแกน</button>
         </div>
       </div>
 
